@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Nunito', sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 173 20% 95%; /* Lighter soft beige for gradient */
+    --foreground: 173 71% 15%; /* Dark Teal */
+    --card: 0 0% 100%;
+    --card-foreground: 173 71% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 173 71% 15%;
+    --primary: 173 58% 39%; /* Teal */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 173 50% 94%; /* Light Teal/Mint */
+    --secondary-foreground: 173 58% 30%;
+    --muted: 60 20% 95%;
+    --muted-foreground: 173 10% 45%;
+    --accent: 39 100% 62%; /* Muted Orange */
+    --accent-foreground: 22 47% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 173 20% 90%;
+    --input: 173 20% 92%;
+    --ring: 173 58% 39%;
+    --chart-1: 173 58% 39%;
+    --chart-2: 39 100% 62%;
+    --chart-3: 173 58% 39%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.75rem;
+
+    /* Neumorphism shadows */
+    --shadow-light: 173 50% 99%;
+    --shadow-dark: 173 30% 85%;
+  }
+ 
+  .dark {
+    --background: 173 15% 12%;
+    --foreground: 173 30% 95%;
+    --card: 173, 10%, 15%;
+    --card-foreground: 173 30% 95%;
+    --popover: 173 10% 10%;
+    --popover-foreground: 173 30% 95%;
+    --primary: 173 45% 65%;
+    --primary-foreground: 173 58% 15%;
+    --secondary: 173 10% 20%;
+    --secondary-foreground: 173 50% 94%;
+    --muted: 173 10% 15%;
+    --muted-foreground: 173 10% 65%;
+    --accent: 39 100% 62%;
+    --accent-foreground: 22 47% 11%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 173 10% 25%;
+    --input: 173 10% 17%;
+    --ring: 173 45% 65%;
+    --chart-1: 173 45% 65%;
+    --chart-2: 39 100% 62%;
+    --chart-3: 173 58% 39%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    /* Neumorphism shadows */
+    --shadow-light: 173 10% 25%;
+    --shadow-dark: 173 15% 15%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .neumorphism-card {
+    @apply rounded-xl border-transparent transition-all duration-200;
+    background: hsl(var(--secondary));
+    box-shadow: 6px 6px 12px hsl(var(--shadow-dark)),
+                -6px -6px 12px hsl(var(--shadow-light));
+  }
+  .neumorphism-card:hover {
+    box-shadow: inset 4px 4px 8px hsl(var(--shadow-dark)),
+                inset -4px -4px 8px hsl(var(--shadow-light));
+  }
+}
