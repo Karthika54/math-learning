@@ -11,79 +11,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { quizzes, topics, Question } from '@/lib/data';
 import { notFound, useParams, useSearchParams } from 'next/navigation';
-import { CheckCircle2, XCircle, ArrowLeft, Lightbulb, Loader2, BookX, ExternalLink } from 'lucide-react';
-import { intelligentTutoring, IntelligentTutoringOutput } from '@/ai/flows/intelligent-tutoring';
+import { CheckCircle2, XCircle, ArrowLeft, Loader2, BookX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast"
 
 type FeedbackState = 'correct' | 'incorrect' | null;
-
-const renderExplanation = (text: string) => {
-  if (!text) return [];
-  
-  const lines = text.split('\n');
-  const elements: JSX.Element[] = [];
-  let listType: 'ul' | 'ol' | null = null;
-  let listItems: JSX.Element[] = [];
-  let paragraphBuffer: string[] = [];
-
-  const flushParagraph = () => {
-    if (paragraphBuffer.length > 0) {
-      elements.push(<p key={`p-${elements.length}`}>{paragraphBuffer.join(' ')}</p>);
-      paragraphBuffer = [];
-    }
-  };
-
-  const flushList = () => {
-    if (listItems.length > 0) {
-      if (listType === 'ul') {
-        elements.push(<ul key={`ul-${elements.length}`} className="list-disc pl-5 space-y-1">{listItems}</ul>);
-      } else if (listType === 'ol') {
-        elements.push(<ol key={`ol-${elements.length}`} className="list-decimal pl-5 space-y-1">{listItems}</ol>);
-      }
-      listItems = [];
-      listType = null;
-    }
-  };
-
-  const flushAll = () => {
-    flushParagraph();
-    flushList();
-  }
-
-  lines.forEach((line, i) => {
-    const trimmedLine = line.trim();
-
-    if (trimmedLine.startsWith('### ')) {
-      flushAll();
-      elements.push(<h4 key={`h4-${i}`} className="font-semibold not-prose text-card-foreground mt-4 mb-2">{trimmedLine.replace('### ', '')}</h4>);
-    } else if (trimmedLine.startsWith('* ') || trimmedLine.startsWith('- ')) {
-      flushParagraph();
-      if (listType !== 'ul') {
-        flushList();
-        listType = 'ul';
-      }
-      listItems.push(<li key={`li-${i}`}>{trimmedLine.substring(2)}</li>);
-    } else if (trimmedLine.match(/^\d+\.\s/)) {
-      flushParagraph();
-      if (listType !== 'ol') {
-        flushList();
-        listType = 'ol';
-      }
-      listItems.push(<li key={`li-${i}`}>{trimmedLine.replace(/^\d+\.\s/, '')}</li>);
-    } else if (trimmedLine.length === 0) {
-      // Empty line is a paragraph break
-      flushAll();
-    } else {
-      flushList();
-      paragraphBuffer.push(trimmedLine);
-    }
-  });
-
-  flushAll();
-  return elements;
-};
-
 
 function QuizComponent() {
   const params = useParams<{ topic: string }>();
@@ -96,8 +28,6 @@ function QuizComponent() {
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [score, setScore] = useState(0);
   const [quizEnded, setQuizEnded] = useState(false);
-  const [isExplanationLoading, setIsExplanationLoading] = useState(false);
-  const [explanation, setExplanation] = useState<IntelligentTutoringOutput | null>(null);
 
   const topicInfo = useMemo(() => topics.find((t) => t.id === params.topic), [params.topic]);
   
@@ -162,7 +92,6 @@ function QuizComponent() {
   const handleNextQuestion = () => {
     setFeedback(null);
     setSelectedAnswer('');
-    setExplanation(null);
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -170,31 +99,12 @@ function QuizComponent() {
     }
   };
 
-  const handleGetExplanation = async () => {
-    if (!currentQuestion) return;
-    setIsExplanationLoading(true);
-    setExplanation(null);
-    try {
-        const result = await intelligentTutoring({
-            problem: currentQuestion.problemForTutor,
-            gradeLevel: `${topicInfo.grade}th Grade`,
-            topic: topicInfo.name
-        });
-        setExplanation(result);
-    } catch (error) {
-        console.error("Failed to get explanation", error);
-        toast({ title: "Error", description: "Could not load explanation. Please try again.", variant: "destructive" });
-    }
-    setIsExplanationLoading(false);
-  }
-
   const resetQuiz = () => {
     setCurrentQuestionIndex(0);
     setScore(0);
     setQuizEnded(false);
     setFeedback(null);
     setSelectedAnswer('');
-    setExplanation(null);
   }
 
   return (
@@ -264,50 +174,25 @@ function QuizComponent() {
               {feedback && currentQuestion && (
                 <div 
                   className={cn(
-                    "mt-6 p-4 rounded-md flex items-center gap-4 animate-in fade-in scale-95",
+                    "mt-6 p-4 rounded-md flex flex-col items-start gap-4 animate-in fade-in scale-95",
                     feedback === 'correct' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
                   )}
                 >
-                  {feedback === 'correct' ? <CheckCircle2 className="h-6 w-6" /> : <XCircle className="h-6 w-6" />}
-                  <div className="flex-grow">
-                    <h3 className="font-bold text-lg">{feedback === 'correct' ? 'Correct!' : 'Not quite!'}</h3>
-                    <p>The correct answer is: {currentQuestion.answer}</p>
+                  <div className="flex items-center gap-4 w-full">
+                    {feedback === 'correct' ? <CheckCircle2 className="h-6 w-6" /> : <XCircle className="h-6 w-6" />}
+                    <div className="flex-grow">
+                      <h3 className="font-bold text-lg">{feedback === 'correct' ? 'Correct!' : 'Not quite!'}</h3>
+                      <p>The correct answer is: {currentQuestion.answer}</p>
+                    </div>
+                    <Button onClick={handleNextQuestion}>Next Question</Button>
                   </div>
-                  <Button onClick={handleNextQuestion}>Next Question</Button>
+                   {feedback === 'incorrect' && (
+                    <div className="border-t border-red-300 w-full pt-3 mt-2 text-center text-sm">
+                        <p>Stuck on this problem? Ask the AI Assistant in the bottom right corner for a step-by-step explanation!</p>
+                    </div>
+                  )}
                 </div>
               )}
-
-              <div className="mt-4">
-                <Button variant="outline" onClick={handleGetExplanation} disabled={isExplanationLoading} className="w-full">
-                  {isExplanationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}
-                  {isExplanationLoading ? "Generating Explanation..." : "Show Me How"}
-                </Button>
-              </div>
-
-              {explanation && (
-                <Card className="mt-6 animate-in fade-in neumorphism-card">
-                  <CardHeader>
-                    <CardTitle className="font-headline">Detailed Explanation</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {explanation.detailedExplanation && (
-                       <div className="prose prose-sm max-w-none text-muted-foreground dark:prose-invert">
-                         {renderExplanation(explanation.detailedExplanation)}
-                       </div>
-                    )}
-                    {explanation.videoExplanationUrl && (
-                      <div className="not-prose mt-4">
-                        <Button asChild>
-                          <Link href={explanation.videoExplanationUrl} target="_blank" rel="noopener noreferrer">
-                            Watch Video Explanation <ExternalLink className="ml-2 h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-
             </div>
           ) : (
             <div className="text-center py-10">
