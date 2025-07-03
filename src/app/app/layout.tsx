@@ -94,7 +94,7 @@ function UserMenu() {
             <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="icon" className="rounded-full">
                 <Avatar>
-                    <AvatarImage src={user?.photoURL || `https://placehold.co/40x40`} alt={user?.displayName || 'User'} />
+                    <AvatarImage src={user?.photoURL || "/default-avatar.png"} alt={user?.displayName || 'User'} />
                     <AvatarFallback>{userInitials}</AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
