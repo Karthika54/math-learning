@@ -14,18 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
-import { signUp, signInWithGoogle } from '@/lib/firebase';
-
-function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48" {...props}>
-      <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917"></path>
-      <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691"></path>
-      <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.412-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44"></path>
-      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.012 36.49 44 30.863 44 24c0-1.341-.138-2.65-.389-3.917"></path>
-    </svg>
-  );
-}
+import { signUp } from '@/lib/firebase';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -56,29 +45,6 @@ export default function SignupPage() {
       toast({
         title: 'Signup Failed',
         description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignup = async () => {
-    setIsLoading(true);
-    try {
-      await signInWithGoogle();
-      router.push('/app/dashboard');
-    } catch (error: any) {
-      let description = error.message;
-      if (error.code === 'auth/popup-blocked') {
-        description = "Google Sign-In was blocked. Please allow pop-ups for this site and try again.";
-      } else if (error.code === 'auth/operation-not-allowed') {
-        description =
-          "Google Sign-In is not enabled for this project. Please enable it in the Firebase Console.";
-      }
-      toast({
-        title: 'Google Signup Failed',
-        description,
         variant: 'destructive',
       });
     } finally {
@@ -145,18 +111,6 @@ export default function SignupPage() {
                 </Button>
               </form>
             </Form>
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignup} disabled={isLoading}>
-              <GoogleIcon className="mr-2 h-5 w-5" />
-              Sign up with Google
-            </Button>
             <div className="mt-6 text-center text-sm">
               Already have an account?{' '}
               <Link href="/login" className="font-medium text-primary hover:underline">

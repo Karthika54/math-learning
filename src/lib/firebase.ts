@@ -1,12 +1,12 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   getAuth,
-  GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  signInWithPopup,
   updateProfile,
+  User,
 } from "firebase/auth";
 
+// Your Firebase config from environment variables
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
@@ -16,24 +16,30 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
+// Initialize the app only once
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
 
 /**
- * Sign up a user with email, password and display name
+ * Sign up a user with email, password, and optional display name.
  */
-export const signUp = async (email: string, password: string, displayName: string) => {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  if (auth.currentUser) {
-    await updateProfile(auth.currentUser, {
-      displayName,
-    });
-  }
-  return userCredential;
-};
+export const signUp = async (
+  email: string,
+  password: string,
+  name?: string
+): Promise<User> => {
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+  const user = userCredential.user;
 
-export const signInWithGoogle = () => {
-  return signInWithPopup(auth, googleProvider);
+  // Optionally set the user's display name
+  if (name) {
+    await updateProfile(user, { displayName: name });
+  }
+
+  return user;
 };
