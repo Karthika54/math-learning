@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { aiChatbotAssistant, AiChatbotAssistantInput } from '@/ai/flows/ai-chatbot-assistant';
 import { cn } from '@/lib/utils';
+import { useSettings } from '@/context/SettingsContext';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -20,6 +21,7 @@ export function AiChatAssistant() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { grade } = useSettings();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +35,7 @@ export function AiChatAssistant() {
     try {
       const chatInput: AiChatbotAssistantInput = {
         question: input,
-        studentGrade: 8, // This could be dynamic based on user profile
+        studentGrade: Number(grade),
         topic: 'General Math', // This could be dynamic based on current page
       };
       const result = await aiChatbotAssistant(chatInput);

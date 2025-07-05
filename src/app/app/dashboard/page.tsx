@@ -2,33 +2,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { topics, Topic } from '@/lib/data';
 import { ArrowRight, BookX, Loader2 } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
 type TopicWithProgress = Topic & { progress: number };
 
 function DashboardContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const gradeFromUrl = searchParams.get('grade');
-
-  const [selectedGrade, setSelectedGrade] = useState(gradeFromUrl || '8');
+  const { grade, setGrade } = useSettings();
   const [topicsWithProgress, setTopicsWithProgress] = useState<TopicWithProgress[]>([]);
-
-  useEffect(() => {
-    // Keeps the component's state in sync with the URL's query parameter.
-    const newGradeFromUrl = searchParams.get('grade');
-    if (newGradeFromUrl && newGradeFromUrl !== selectedGrade) {
-      setSelectedGrade(newGradeFromUrl);
-    }
-  }, [searchParams, selectedGrade]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -45,41 +33,40 @@ function DashboardContent() {
     } catch (error) {
       console.error("Could not calculate progress", error);
       setTopicsWithProgress(topics.map(t => ({...t, progress: 0})));
+    } finally {
+        setIsLoading(false);
     }
   }, []);
-
-  const handleGradeChange = (newGrade: string) => {
-    setSelectedGrade(newGrade);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('grade', newGrade);
-    router.push(`${pathname}?${params.toString()}`);
-  };
 
   const filteredTopics = useMemo(() => {
     return topicsWithProgress.filter(
       (topic) =>
-        topic.grade === parseInt(selectedGrade)
+        topic.grade === parseInt(grade)
     );
-  }, [selectedGrade, topicsWithProgress]);
+  }, [grade, topicsWithProgress]);
+
+  if (isLoading) {
+    return <div className="flex h-full w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto px-0 md:px-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline">Welcome back, Student!</h1>
-          <p className="text-muted-foreground">Let's continue your math adventure. What are we learning today?</p>
+          <h1 className="text-2xl md:text-3xl font-bold font-headline">Welcome back, Student!</h1>
+          <p className="text-muted-foreground">Let's continue your math adventure.</p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Select Your Grade:</span>
-                <Select value={selectedGrade} onValueChange={handleGradeChange}>
+                <Select value={grade} onValueChange={setGrade}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select Grade" />
                   </SelectTrigger>
                   <SelectContent>
                     {[...Array(7)].map((_, i) => {
-                        const grade = i + 4;
-                        return <SelectItem key={grade} value={String(grade)}>{grade}th Grade</SelectItem>
+                        const gradeValue = i + 4;
+                        return <SelectItem key={gradeValue} value={String(gradeValue)}>{gradeValue}th Grade</SelectItem>
                     })}
                   </SelectContent>
                 </Select>
@@ -88,16 +75,16 @@ function DashboardContent() {
       </div>
       
       {filteredTopics.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredTopics.map((topic) => (
             <Card key={topic.id} className="flex flex-col neumorphism-card">
-              <CardHeader className="flex-row items-center gap-4 space-y-0">
+              <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4">
                  <div className="p-3 bg-secondary rounded-full">
                    <topic.icon className="w-8 h-8 text-primary" />
                  </div>
                  <div>
-                  <CardTitle className="font-headline text-2xl">{topic.name}</CardTitle>
-                  <CardDescription>{topic.description}</CardDescription>
+                  <CardTitle className="font-headline text-xl leading-tight">{topic.name}</CardTitle>
+                  <CardDescription className="mt-1">{topic.description}</CardDescription>
                  </div>
               </CardHeader>
               <CardContent className="flex-grow">
@@ -133,9 +120,5 @@ function DashboardContent() {
 
 
 export default function Dashboard() {
-  return (
-      <Suspense fallback={<div className="flex h-full w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-          <DashboardContent />
-      </Suspense>
-  )
+    return <DashboardContent />;
 }

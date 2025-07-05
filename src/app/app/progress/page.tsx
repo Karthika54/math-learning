@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartContainer,
@@ -16,6 +15,7 @@ import { topics } from '@/lib/data';
 import { Lightbulb, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useSettings } from '@/context/SettingsContext';
 
 type TopicProgress = {
   name: string;
@@ -36,24 +36,11 @@ const chartConfig = {
 };
 
 function ProgressPageContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const gradeFromUrl = searchParams.get('grade');
-
-  const [selectedGrade, setSelectedGrade] = useState(gradeFromUrl || '8');
+  const { grade, setGrade } = useSettings();
   const [overallCompletion, setOverallCompletion] = useState(0);
   const [topicPerformance, setTopicPerformance] = useState<TopicProgress[]>([]);
   const [aiSuggestions, setAiSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Keeps the component's state in sync with the URL's query parameter.
-    const newGradeFromUrl = searchParams.get('grade');
-    if (newGradeFromUrl && newGradeFromUrl !== selectedGrade) {
-      setSelectedGrade(newGradeFromUrl);
-    }
-  }, [searchParams, selectedGrade]);
 
   useEffect(() => {
     try {
@@ -119,17 +106,10 @@ function ProgressPageContent() {
     }
   }, []);
 
-  const handleGradeChange = (newGrade: string) => {
-    setSelectedGrade(newGrade);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('grade', newGrade);
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
   const filteredTopicPerformance = useMemo(() => {
-    if (!selectedGrade) return [];
-    return topicPerformance.filter(topic => topic.grade === parseInt(selectedGrade));
-  }, [selectedGrade, topicPerformance]);
+    if (!grade) return [];
+    return topicPerformance.filter(topic => topic.grade === parseInt(grade));
+  }, [grade, topicPerformance]);
 
 
   if (isLoading) {
@@ -137,30 +117,30 @@ function ProgressPageContent() {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto px-0 md:px-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <h1 className="text-3xl font-bold font-headline">Your Progress</h1>
+        <h1 className="text-2xl md:text-3xl font-bold font-headline">Your Progress</h1>
          <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Filter by Grade:</span>
-            <Select value={selectedGrade} onValueChange={handleGradeChange}>
+            <Select value={grade} onValueChange={setGrade}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Grade" />
               </SelectTrigger>
               <SelectContent>
                 {[...Array(7)].map((_, i) => {
-                    const grade = i + 4;
-                    return <SelectItem key={grade} value={String(grade)}>{grade}th Grade</SelectItem>
+                    const gradeValue = i + 4;
+                    return <SelectItem key={gradeValue} value={String(gradeValue)}>{gradeValue}th Grade</SelectItem>
                 })}
               </SelectContent>
             </Select>
         </div>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <Card className="lg:col-span-2 neumorphism-card">
           <CardHeader>
             <CardTitle>Topic Completion</CardTitle>
-            <CardDescription>Your completion percentage for Grade {selectedGrade} topics.</CardDescription>
+            <CardDescription>Your completion percentage for Grade {grade} topics.</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
@@ -175,7 +155,8 @@ function ProgressPageContent() {
                     interval={0}
                     angle={-45}
                     textAnchor="end"
-                    height={100}
+                    tick={{ fontSize: 12 }}
+                    height={80}
                   />
                   <YAxis unit="%" />
                   <ChartTooltip
@@ -234,10 +215,5 @@ function ProgressPageContent() {
 }
 
 export default function ProgressPage() {
-  return (
-    <Suspense fallback={<div className="flex h-full w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-      <ProgressPageContent />
-    </Suspense>
-  )
+    return <ProgressPageContent />;
 }
-

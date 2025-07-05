@@ -94,32 +94,32 @@ export default function BadgesPage() {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto px-0 md:px-4">
       <div className="flex items-center gap-4 mb-8">
         <Trophy className="w-8 h-8 text-accent" />
         <div>
-          <h1 className="text-3xl font-bold font-headline">Your Achievements</h1>
+          <h1 className="text-2xl md:text-3xl font-bold font-headline">Your Achievements</h1>
           <p className="text-muted-foreground">Celebrate your progress with these badges!</p>
         </div>
       </div>
       
       <TooltipProvider>
-        <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {badges.map(badge => {
             const isEarned = earnedBadges.has(badge.id);
             return (
               <Tooltip key={badge.id} delayDuration={100}>
                 <TooltipTrigger asChild>
-                  <Card className={cn("text-center neumorphism-card", isEarned ? "border-accent" : "grayscale opacity-60")}>
-                    <CardHeader className="items-center pb-2">
-                      <div className={cn("p-4 rounded-full mb-2", isEarned ? "bg-accent/10" : "bg-muted")}>
-                         <badge.icon className={cn("w-12 h-12", isEarned ? "text-accent" : "text-muted-foreground")} />
+                  <Card className={cn("text-center neumorphism-card p-2 sm:p-4", isEarned ? "border-accent" : "grayscale opacity-60")}>
+                    <CardHeader className="items-center p-0 pb-2">
+                      <div className={cn("p-3 sm:p-4 rounded-full mb-2", isEarned ? "bg-accent/10" : "bg-muted")}>
+                         <badge.icon className={cn("w-10 h-10 sm:w-12 sm:h-12", isEarned ? "text-accent" : "text-muted-foreground")} />
                       </div>
-                      <CardTitle className="font-headline text-lg">{badge.name}</CardTitle>
+                      <CardTitle className="font-headline text-base sm:text-lg leading-tight">{badge.name}</CardTitle>
                     </CardHeader>
-                    <CardContent className="h-8 flex items-center justify-center">
+                    <CardContent className="p-0 h-8 flex items-center justify-center">
                       {!isEarned ? (
-                        <div className="flex items-center gap-2 text-muted-foreground">
+                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
                             <Lock className="w-4 h-4" />
                             <span>Locked</span>
                         </div>

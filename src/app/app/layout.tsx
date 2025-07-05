@@ -13,7 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LayoutDashboard, BarChart2, LogOut, User, Award, Loader2 } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { LayoutDashboard, BarChart2, LogOut, User, Award, Loader2, Menu } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { AiChatAssistant } from '@/components/ai-chat-assistant';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -53,6 +54,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             Badges
           </Link>
         </nav>
+        
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle navigation menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left">
+            <nav className="grid gap-6 text-lg font-medium">
+              <Logo />
+              <Link href="/app/dashboard" className="text-muted-foreground hover:text-foreground">
+                Dashboard
+              </Link>
+              <Link href="/app/progress" className="text-muted-foreground hover:text-foreground">
+                Progress
+              </Link>
+              <Link href="/app/badges" className="text-muted-foreground hover:text-foreground">
+                Badges
+              </Link>
+            </nav>
+          </SheetContent>
+        </Sheet>
+
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
           <div className="ml-auto flex-1 sm:flex-initial">
              {/* Future search bar can go here */}
@@ -94,7 +123,7 @@ function UserMenu() {
             <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="icon" className="rounded-full">
                 <Avatar>
-                    <AvatarImage src={user?.photoURL || "/default-avatar.png"} alt={user?.displayName || 'User'} />
+                    <AvatarImage src={user?.photoURL || `https://placehold.co/40x40`} alt={user?.displayName || 'User'} />
                     <AvatarFallback>{userInitials}</AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
@@ -104,8 +133,10 @@ function UserMenu() {
                 <DropdownMenuLabel>{user?.displayName || user?.email || 'My Account'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <Link href="/app/profile" className="flex items-center w-full">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                     <Link href="/app/progress" className="flex items-center w-full">

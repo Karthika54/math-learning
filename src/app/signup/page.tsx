@@ -39,7 +39,7 @@ export default function SignupPage() {
   const handleSignup = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      await signUp(values.email, values.password, values.name);
+      await signUp(values.name, values.email, values.password);
       router.push('/app/dashboard');
     } catch (error: any) {
       toast({

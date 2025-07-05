@@ -54,14 +54,14 @@ export default function TopicPage() {
   }, [completedLevels, topicInfo]);
 
   return (
-    <div className="container mx-auto max-w-5xl">
-      <Link href={`/app/dashboard?grade=${topicInfo.grade}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
+    <div className="container mx-auto max-w-5xl px-0 md:px-4">
+      <Link href="/app/dashboard" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="h-4 w-4" />
         Back to Dashboard
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-4xl font-bold font-headline flex items-center gap-3 mb-2">
+        <h1 className="text-3xl md:text-4xl font-bold font-headline flex items-center gap-3 mb-2">
             <topicInfo.icon className="w-8 h-8 text-primary" />
             {topicInfo.name}
         </h1>
@@ -78,19 +78,19 @@ export default function TopicPage() {
 
       <div className="mb-12">
         <h2 className="text-2xl font-bold font-headline mb-4">Select a Level</h2>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {levelDescriptions.map((level) => (
             <Link key={level.number} href={`/app/quiz/${topicInfo.id}?level=${level.number}`} passHref>
               <Card 
-                className="text-center hover:shadow-lg transition-all hover:-translate-y-1 h-full flex flex-col"
+                className="text-center hover:shadow-lg transition-all hover:-translate-y-1 h-full flex flex-col p-2 sm:p-4"
               >
-                <CardHeader>
-                  <CardTitle className="text-4xl font-bold text-primary">{level.number}</CardTitle>
+                <CardHeader className="p-0 sm:p-6 pb-2">
+                  <CardTitle className="text-3xl sm:text-4xl font-bold text-primary">{level.number}</CardTitle>
                 </CardHeader>
-                <CardContent className="flex-grow flex flex-col justify-between p-4">
-                  <div>
-                      <p className="font-semibold">{level.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{level.description}</p>
+                <CardContent className="flex-grow flex flex-col justify-between p-2 pt-0 sm:p-4 sm:pt-0">
+                  <div className="flex-grow flex flex-col justify-center">
+                      <p className="font-semibold text-sm sm:text-base leading-tight">{level.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1 hidden sm:block">{level.description}</p>
                   </div>
                   <div className="text-sm font-medium mt-4 flex items-center justify-center gap-2">
                       {level.icon}
@@ -112,8 +112,8 @@ export default function TopicPage() {
           <Accordion type="single" collapsible className="w-full rounded-lg border">
               {topicLessons.map((lesson, index) => (
                   <AccordionItem key={lesson.id} value={lesson.id} className={cn(index === topicLessons.length - 1 && "border-b-0")}>
-                      <AccordionTrigger className="px-6 text-lg font-semibold hover:no-underline text-left">{lesson.title}</AccordionTrigger>
-                      <AccordionContent className="px-6 prose prose-sm max-w-none text-muted-foreground">
+                      <AccordionTrigger className="px-4 sm:px-6 text-base sm:text-lg font-semibold hover:no-underline text-left">{lesson.title}</AccordionTrigger>
+                      <AccordionContent className="px-4 sm:px-6 prose prose-sm max-w-none text-muted-foreground">
                          <p>{lesson.content}</p>
                       </AccordionContent>
                   </AccordionItem>
